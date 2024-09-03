@@ -1,0 +1,29 @@
+//@version=5
+indicator("Scaled Comparison", overlay=false)
+
+// Input symbols
+symbol1 = input("SPX", "Symbol")
+symbol2 = input("BTC", "Symbol")
+
+// Fetch data
+price1= request.security(symbol1, timeframe.period, close)
+price2 = request.security(symbol2, timeframe.period, close)
+
+// Calculate index to 100
+start_time = input.time(timestamp("2024-01-02 00:00"), "Start Time") // Adjust the start time as needed
+
+// Function to calculate indexed value
+index_to_100(price, start_price, factor) =>
+    start_price == 0 ? 0 : ((price - start_price) / start_price) * 100 * factor + 100
+
+price1_at_start_time = ta.valuewhen(time == start_time, price1, 0)
+price2_at_start_time = ta.valuewhen(time == start_time, price2, 0)
+
+indexed_price1 = index_to_100(price1  , price1_at_start_time, input(2, "Scale Factor 1"))
+indexed_price2 = index_to_100(price2  , price2_at_start_time, input(2, "Scale Factor 2"))
+
+
+
+// Plot scaled data
+plot(indexed_price1, title="Scaled Price 1", color=color.blue)
+plot(indexed_price2, title="Scaled Price 2", color=color.red)
